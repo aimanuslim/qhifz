@@ -12,3 +12,8 @@ class CreateView(generics.ListCreateAPIView):
     def create_performance(self,serializer):
         # save the POST data when user creates a new hifz
         serializer.save()
+
+class DetailsView(generics.RetrieveUpdateDestroyAPIView):
+
+    queryset = Hifz.objects.all()
+    serializer_class = HifzSerializer

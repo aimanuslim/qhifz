@@ -19,7 +19,7 @@ class ModelTestCase(TestCase):
         self.assertEqual(self.surah_name, self.ayat.getSurahNameString());
 
     def test_model_return_now_for_last_added_after_initialization(self):
-        self.assertEqual(self.ayat.getLastRefreshed(), datetime.datetime.now())
+        self.assertEqual(self.ayat.getLastRefreshed(), datetime.date.today())
 
     def test_model_getter_ifdate_isinvalid_(self):
         self.ayat.last_refreshed = "2/3/2018"
@@ -38,7 +38,8 @@ class ModelTestCase(TestCase):
 class ViewTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.hifz_data = {'surah': 3, 'ayat_number': 4, 'last_refreshed': '2/2/2012'}
+        # date format needs to be  YYYY[-MM[-DD]]
+        self.hifz_data = {'surah': 3, 'ayat_number': 4, 'last_refreshed': '2017-02-02'}
         self.response = self.client.post(
             reverse('create'),
             self.hifz_data,
@@ -46,5 +47,33 @@ class ViewTestCase(TestCase):
         )
 
     def test_api_can_create_list(self):
-        print(self.response.data)
         self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)
+
+
+    def test_api_can_get_list(self):
+        hifz_list = Hifz.objects.all()
+
+        response = self.client.get(
+            reverse('details',
+            kwargs = {'pk': hifz_data.id}),
+            # format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        print(hifz_data)
+        print(response)
+        self.assertContains(response, hifz_data)
+
+    def test_can_update_list(self):
+        hifz_data = Hifz.objects.get()
+        update_data = {'surah': 22, 'ayat_number': 3, 'last_refreshed': '2018-01-01'}
+        response = self.client.put(reverse('details',   kwargs={'pk': hifz_data.id}), update_data, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_api_can_delete(self):
+        hifz_data = Hifz.objects.get()
+        response = self.client.delete(reverse('details', kwargs={'pk': hifz_data.id}),
+            format='json',
+            follow=True)
+
+        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
