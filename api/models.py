@@ -13,6 +13,7 @@ class Hifz(models.Model):
     surah_array = tuple(zip(pluck(surah_array, 'number'), pluck(surah_array, 'englishName')))
 
     # user = models.ForeignKey(settings.AUTH_USER_MODEL, default=1, on_delete=models.CASCADE)
+    owner = models.ForeignKey('auth.User', related_name='hifz', on_delete=models.CASCADE)
     ayat_number = models.IntegerField()
     surah = models.IntegerField()
     last_refreshed = models.DateField(default=datetime.date.today)
